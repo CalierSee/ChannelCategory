@@ -250,9 +250,7 @@ static const CGFloat kALCTitleVeiwHeight = 44;
             break;
         case UIGestureRecognizerStateChanged://更新cell位置
             if (self.editGestureActive) {
-                self.editingCell.transform = CGAffineTransformMakeScale(1.1, 1.1);
                 [self.mainContainer updateInteractiveMovementTargetPosition:[sender locationInView:self.mainContainer]];
-                NSLog(@"%.2lf",self.editingCell.layer.zPosition);
             }
             break;
         case UIGestureRecognizerStateEnded://完成移动cell
