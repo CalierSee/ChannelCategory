@@ -1,0 +1,24 @@
+PODS:
+  - JXCategoryView (1.5.5)
+  - Masonry (1.1.0)
+  - ReactiveObjC (3.1.1)
+
+DEPENDENCIES:
+  - JXCategoryView
+  - Masonry
+  - ReactiveObjC
+
+SPEC REPOS:
+  trunk:
+    - JXCategoryView
+    - Masonry
+    - ReactiveObjC
+
+SPEC CHECKSUMS:
+  JXCategoryView: 0293fcb356f10a5c2e679dac0a1a5f1899ee0c87
+  Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+  ReactiveObjC: 011caa393aa0383245f2dcf9bf02e86b80b36040
+
+PODFILE CHECKSUM: 6239d39a509738ce377e7771493352287a2cc82c
+
+COCOAPODS: 1.9.3
