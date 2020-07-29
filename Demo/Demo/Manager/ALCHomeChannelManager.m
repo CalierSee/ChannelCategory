@@ -36,7 +36,7 @@ NSNotificationName const ALCHomeChannelManagerDidLoadData = @"ALCHomeChannelMana
         ALCHomeCategoryModel * category = [[ALCHomeCategoryModel alloc]init];
         category.category = i;
         category.channels = [NSMutableArray array];
-        int count = arc4random_uniform(20) + 10;
+        int count = arc4random_uniform(20) + 1;
         if (i == 0) {
             count = 2;
         }

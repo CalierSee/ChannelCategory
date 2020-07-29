@@ -75,13 +75,7 @@ static const CGFloat kALCTitleVeiwHeight = 44;
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
     if (!self.adjustContentSize) {
-        NSInteger lastChannelCount = [ALCHomeChannelManager shared].allCategory.lastObject.channels.count;
-        NSInteger row = lastChannelCount / 4 + (lastChannelCount % 4 ? 1 : 0);
-        CGFloat lastChannelHeight = row * self.flowLayout.itemSize.height + self.flowLayout.minimumLineSpacing * (row - 1) + kALCTitleVeiwHeight * 2;
-        CGFloat bottomEdge = self.mainContainer.bounds.size.height - lastChannelHeight;
-        if (bottomEdge > 0) {
-            self.mainContainer.contentInset = UIEdgeInsetsMake(10, 10,  bottomEdge, 10);
-        }
+        [self calculateContentSize];
         self.adjustContentSize = YES;
     }
 }
@@ -173,6 +167,10 @@ static const CGFloat kALCTitleVeiwHeight = 44;
     NSInteger myChannelCount = [ALCHomeChannelManager shared].myChannels.count;
     NSInteger myChannelRow = myChannelCount / 4 + (myChannelCount % 4 == 0 ? 0 : 1);
     self.categoryViewOriginY = kALCTitleVeiwHeight + myChannelRow * self.flowLayout.itemSize.height + self.flowLayout.minimumLineSpacing * myChannelRow;
+    
+    if (indexPath.section == [ALCHomeChannelManager shared].allCategory.count - 1 || toIndexPath.section == [ALCHomeChannelManager shared].allCategory.count - 1) {
+        [self calculateContentSize];
+    }
 }
 
 /// categoryView悬浮布局
@@ -200,9 +198,31 @@ static const CGFloat kALCTitleVeiwHeight = 44;
 }
 
 - (void)selectCategoryViewWithContentOffsetY:(CGFloat)y {
-    NSIndexPath * indexPath = [self.mainContainer indexPathForItemAtPoint:CGPointMake(20, y + kALCTitleVeiwHeight * 2)];
+    NSArray <NSIndexPath *> * visibleHeaderIndexPath = [self.mainContainer indexPathsForVisibleSupplementaryElementsOfKind:UICollectionElementKindSectionHeader];
+    CGFloat anchorY = y + kALCTitleVeiwHeight;
+    __block NSIndexPath * indexPath = nil;
+    [visibleHeaderIndexPath enumerateObjectsUsingBlock:^(NSIndexPath * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        UICollectionViewLayoutAttributes * attr = [self.mainContainer layoutAttributesForSupplementaryElementOfKind:UICollectionElementKindSectionHeader atIndexPath:obj];
+        if (CGRectContainsPoint(attr.frame, CGPointMake(1, anchorY))) {
+            indexPath = obj;
+            *stop = YES;
+        }
+    }];
     if (indexPath && self.categoryView.selectedIndex != indexPath.section - 1) {
         [self.categoryView selectItemAtIndex:indexPath.section - 1];
+    }
+}
+
+- (void)calculateContentSize {
+    NSInteger lastChannelCount = [ALCHomeChannelManager shared].allCategory.lastObject.channels.count;
+    NSInteger row = lastChannelCount / 4 + (lastChannelCount % 4 ? 1 : 0);
+    CGFloat lastChannelHeight = row * self.flowLayout.itemSize.height + self.flowLayout.minimumLineSpacing * (row - 1) + kALCTitleVeiwHeight * 2;
+    if (row == 0) {
+        lastChannelHeight += kALCTitleVeiwHeight;
+    }
+    CGFloat bottomEdge = self.mainContainer.bounds.size.height - lastChannelHeight;
+    if (bottomEdge > 0) {
+        self.mainContainer.contentInset = UIEdgeInsetsMake(10, 10,  bottomEdge, 10);
     }
 }
 
@@ -232,6 +252,7 @@ static const CGFloat kALCTitleVeiwHeight = 44;
             if (self.editGestureActive) {
                 self.editingCell.transform = CGAffineTransformMakeScale(1.1, 1.1);
                 [self.mainContainer updateInteractiveMovementTargetPosition:[sender locationInView:self.mainContainer]];
+                NSLog(@"%.2lf",self.editingCell.layer.zPosition);
             }
             break;
         case UIGestureRecognizerStateEnded://完成移动cell
@@ -270,6 +291,8 @@ static const CGFloat kALCTitleVeiwHeight = 44;
     ALCHomeChannelCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"channelCell" forIndexPath:indexPath];
     
     [cell configureWithModel:[ALCHomeChannelManager shared].allCategory[indexPath.section].channels[indexPath.row] editEnabled:self.isEditEnabled];
+    
+    cell.layer.zPosition = 1.0;
 
     return cell;
 }
@@ -293,6 +316,10 @@ static const CGFloat kALCTitleVeiwHeight = 44;
 }
 
 #pragma mark UICollectionViewDelegate
+- (void)collectionView:(UICollectionView *)collectionView willDisplaySupplementaryView:(UICollectionReusableView *)view forElementKind:(NSString *)elementKind atIndexPath:(NSIndexPath *)indexPath {
+    view.layer.zPosition = 0.0;
+}
+
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([ALCHomeChannelManager shared].allCategory[indexPath.section].category == ALCHomeChannelCategoryMy) {
