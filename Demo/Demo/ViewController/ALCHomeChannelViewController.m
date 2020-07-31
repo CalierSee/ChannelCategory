@@ -236,7 +236,7 @@ static const CGFloat kALCTitleVeiwHeight = 44;
             if(indexPath == nil){//如果没有选中cell返回
                 return;
             }
-            if ([self collectionView:self.mainContainer canMoveItemAtIndexPath:indexPath]) {
+            if ([ALCHomeChannelManager shared].allCategory[indexPath.section].channels[indexPath.row].canMove) {
                 self.editGestureActive = YES;
                 self.movingIndexPath = indexPath;
                 self.editingCell = (ALCHomeChannelCell *)[self.mainContainer cellForItemAtIndexPath:indexPath];
@@ -286,13 +286,13 @@ static const CGFloat kALCTitleVeiwHeight = 44;
 }
 
 - (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    ALCHomeChannelCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"channelCell" forIndexPath:indexPath];
-    
-    [cell configureWithModel:[ALCHomeChannelManager shared].allCategory[indexPath.section].channels[indexPath.row] editEnabled:self.isEditEnabled];
-    
-    cell.layer.zPosition = 1.0;
-
-    return cell;
+        ALCHomeChannelCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"channelCell" forIndexPath:indexPath];
+        
+        [cell configureWithModel:[ALCHomeChannelManager shared].allCategory[indexPath.section].channels[indexPath.row] editEnabled:self.isEditEnabled];
+        
+        cell.layer.zPosition = 1.0;
+        
+        return cell;
 }
 
 #pragma mark UIScrollViewDelegate
@@ -376,6 +376,7 @@ static const CGFloat kALCTitleVeiwHeight = 44;
 }
 
 - (NSIndexPath *)collectionView:(UICollectionView *)collectionView targetIndexPathForMoveFromItemAtIndexPath:(NSIndexPath *)originalIndexPath toProposedIndexPath:(NSIndexPath *)proposedIndexPath {
+    
     NSIndexPath * targetIndexPath = nil;
     if (proposedIndexPath.section == 0) {
         if (proposedIndexPath.row >= kALCMyStaticChannelIndex) {
